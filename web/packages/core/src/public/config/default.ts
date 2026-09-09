@@ -15,6 +15,7 @@ import {
 } from "./load-options";
 
 export const DEFAULT_CONFIG: Required<BaseLoadOptions> = {
+    hostStorage: null,
     allowScriptAccess: false,
     parameters: {},
     autoplay: AutoPlay.Auto,

@@ -36,6 +36,7 @@ use web_sys::{HtmlCanvasElement, HtmlElement};
 #[derive(Debug, Clone)]
 pub struct RuffleInstanceBuilder {
     pub(crate) allow_script_access: bool,
+    pub(crate) host_storage: Option<crate::host_storage::HostStorageBackend>,
     pub(crate) background_color: Option<Color>,
     pub(crate) letterbox: Letterbox,
     pub(crate) upgrade_to_https: bool,
@@ -76,6 +77,7 @@ impl Default for RuffleInstanceBuilder {
 
         Self {
             allow_script_access: false,
+            host_storage: None,
             background_color: None,
             letterbox: Letterbox::Fullscreen,
             upgrade_to_https: true,
@@ -115,6 +117,12 @@ impl RuffleInstanceBuilder {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    #[wasm_bindgen(js_name = "setHostStorage")]
+    pub fn set_host_storage(&mut self, value: JsValue) -> Result<(), JsValue> {
+        self.host_storage = Some(crate::host_storage::HostStorageBackend::new(value)?);
+        Ok(())
     }
 
     #[wasm_bindgen(js_name = "setAllowScriptAccess")]
@@ -656,6 +664,9 @@ impl RuffleInstanceBuilder {
     }
 
     pub fn create_storage_backend(&self) -> Box<dyn StorageBackend> {
+        if let Some(value) = &self.host_storage {
+            return Box::new(value.clone());
+        }
         match web_sys::window().expect("window()").local_storage() {
             Ok(Some(s)) => Box::new(storage::LocalStorageBackend::new(s)),
             err => {

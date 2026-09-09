@@ -4,6 +4,14 @@ import { DataLoadOptions, URLLoadOptions } from "../config";
 import { ReadyState } from "./index";
 
 export interface PlayerV1 {
+    /** Retrom host ABI, covering isolated storage and access to the render surface. */
+    readonly hostAbi: "ruffle-host-v1";
+    /** The current render surface, or null before mount and after destruction. */
+    getCanvas(): HTMLCanvasElement | null;
+    /** Re-render the current state and capture pixels before the GPU surface is presented. */
+    captureFrame(): Promise<Blob>;
+    /** Idempotently dispose an instance, including a load that completed after host cancellation. */
+    destroy(): void;
     /**
      * Adds a handler for arbitrary "fs commands" from a movie in this player.
      *

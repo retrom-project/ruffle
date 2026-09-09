@@ -4,6 +4,19 @@ import type { DataLoadOptions, URLLoadOptions } from "../../public/config";
 import type { MovieMetadata } from "../../public/player";
 
 export class PlayerV1Impl implements PlayerV1 {
+    readonly hostAbi = "ruffle-host-v1" as const;
+
+    getCanvas(): HTMLCanvasElement | null {
+        return this.#inner.getCanvas();
+    }
+
+    captureFrame(): Promise<Blob> {
+        return this.#inner.captureFrame();
+    }
+
+    destroy(): void {
+        this.#inner.destroy();
+    }
     #inner: InnerPlayer;
 
     constructor(inner: InnerPlayer) {

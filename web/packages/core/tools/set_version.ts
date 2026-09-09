@@ -2,8 +2,9 @@ import { replaceInFileSync } from "replace-in-file";
 import childProcess from "child_process";
 import fs from "fs";
 import path from "path";
+import { buildDateFromEpoch } from "./build_date";
 
-let buildDate = new Date().toISOString();
+let buildDate = buildDateFromEpoch(process.env["SOURCE_DATE_EPOCH"]);
 let versionNumber = process.env["npm_package_version"] ?? "";
 let versionChannel = process.env["CFG_RELEASE_CHANNEL"] || "local";
 const firefoxExtensionId =

@@ -145,6 +145,26 @@ class Point {
  * This is the backing logic behind a HTML "player" element, and bridges the gap to the Rust codebase.
  */
 export class InnerPlayer {
+    captureFrame(): Promise<Blob> {
+        const canvas = this.getCanvas();
+        if (!this.instance || !canvas) {
+            return Promise.reject(new Error("RUFFLE_SURFACE_UNAVAILABLE"));
+        }
+        this.instance.render_current_frame();
+        return new Promise((resolve, reject) =>
+            canvas.toBlob((blob) => {
+                if (blob && blob.size) {
+                    resolve(blob);
+                } else {
+                    reject(new Error("RUFFLE_SCREENSHOT_FAILED"));
+                }
+            }, "image/png"),
+        );
+    }
+
+    getCanvas(): HTMLCanvasElement | null {
+        return this.container.querySelector("canvas");
+    }
     /**
      * Triggered when a movie metadata has been loaded (such as movie width and height).
      *
@@ -1019,6 +1039,7 @@ export class InnerPlayer {
                     new Uint8Array(options.data),
                     sanitizeParameters(options.parameters),
                     options.swfFileName || "movie.swf",
+                    options.hostMovieUrl,
                 );
             }
         } catch (e) {

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/retrom-project/ruffle",
+  "upstreamRepository": "https://github.com/ruffle-rs/ruffle",
+  "upstreamBranch": "master",
+  "upstreamCommit": "e46d1642fb67a53b56ffa4b1871cb7c57589e36d",
+  "defaultBranch": "retrom/ge46d1642fb67",
+  "coreId": "ruffle",
+  "adapterAbi": "ruffle-host-v1"
+}
