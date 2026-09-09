@@ -36,7 +36,7 @@ jobs:
           mkdir "$RUNNER_TEMP/ruffle-candidate"
           bash .github/rpg-runtime/build-candidate.sh "$RUNNER_TEMP/ruffle-candidate"
           bash .github/rpg-runtime/check-web.sh
-          python3 -B .github/rpg-runtime/release.py --candidate "$RUNNER_TEMP/ruffle-candidate" --output "$RUNNER_TEMP/ruffle-release" --tag "$GITHUB_REF_NAME"
+          python3 -B .github/rpg-runtime/release.py --candidate "$RUNNER_TEMP/ruffle-candidate" --output "$RUNNER_TEMP/ruffle-release" --tag "$GITHUB_REF_NAME" --tag-ref "refs/retrom-release/$GITHUB_REF_NAME"
       - name: Publish immutable release
         env:
           GH_TOKEN: ${{ github.token }}
