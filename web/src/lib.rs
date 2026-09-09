@@ -4,6 +4,7 @@
 mod audio;
 mod builder;
 mod external_interface;
+mod host_storage;
 mod input;
 mod log_adapter;
 mod navigator;
@@ -275,6 +276,7 @@ impl RuffleHandle {
         swf_data: Uint8Array,
         parameters: JsValue,
         swf_name: String,
+        host_movie_url: Option<String>,
     ) -> Result<(), JsValue> {
         let window = web_sys::window().ok_or("Expected window")?;
         let mut url = Url::from_str(&window.location().href()?)
@@ -284,6 +286,19 @@ impl RuffleHandle {
         if let Ok(mut segments) = url.path_segments_mut() {
             segments.pop();
             segments.push(&swf_name);
+        }
+
+        if let Some(identity) = host_movie_url {
+            url = Url::parse(&identity).map_err(|_| "Invalid host movie URL")?;
+            if !matches!(url.scheme(), "http" | "https")
+                || url.host_str().is_none()
+                || !url.username().is_empty()
+                || url.password().is_some()
+                || url.query().is_some()
+                || url.fragment().is_some()
+            {
+                return Err("Invalid host movie URL".into());
+            }
         }
 
         let mut movie = SwfMovie::from_data(&swf_data.to_vec(), url.to_string(), None, None)
@@ -311,6 +326,11 @@ impl RuffleHandle {
         let _ = self.with_core_mut(|core| {
             core.set_is_playing(true);
         });
+    }
+
+    /// Render without advancing execution, immediately before a host captures the canvas.
+    pub fn render_current_frame(&self) {
+        let _ = self.with_core_mut(|core| core.render());
     }
 
     pub fn pause(&self) {

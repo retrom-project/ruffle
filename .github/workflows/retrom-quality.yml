@@ -1,0 +1,35 @@
+name: Retrom Web Quality
+on:
+  pull_request:
+    branches: [retrom/ge46d1642fb67]
+  push:
+    branches: [retrom/ge46d1642fb67]
+permissions:
+  contents: read
+concurrency:
+  group: retrom-web-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.18.0
+      - run: python3 -B -m unittest discover -s .github/rpg-runtime -p 'test_*.py'
+      - name: Build fork-owned candidate
+        run: |
+          mkdir "$RUNNER_TEMP/ruffle-candidate"
+          bash .github/rpg-runtime/build-candidate.sh "$RUNNER_TEMP/ruffle-candidate"
+      - name: Check changed Rust formatting
+        run: |
+          image="retrom-ruffle-toolchain:$(sha256sum .github/rpg-runtime/Dockerfile | cut -c1-16)"
+          docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:$PWD" -w "$PWD" "$image" rustfmt --check --edition 2024 --config skip_children=true web/src/builder.rs web/src/lib.rs web/src/host_storage.rs
+      - run: bash .github/rpg-runtime/check-web.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ruffle-candidate
+          path: ${{ runner.temp }}/ruffle-candidate/
+          if-no-files-found: error

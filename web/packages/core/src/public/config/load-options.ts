@@ -415,6 +415,13 @@ export interface BaseLoadOptions {
      */
     allowScriptAccess?: boolean;
 
+    /** Instance-owned SharedObject bytes. Validated before player creation. */
+    hostStorage?: null | {
+        get(name: string): Uint8Array | null;
+        put(name: string, bytes: Uint8Array): boolean;
+        remove(name: string): void;
+    };
+
     /**
      * Also known as "flashvars" - these are values that may be passed to
      * and loaded by the movie.
@@ -831,6 +838,8 @@ export interface URLLoadOptions extends BaseLoadOptions {
  * Options to load a movie by a data stream.
  */
 export interface DataLoadOptions extends BaseLoadOptions {
+    /** Stable HTTP(S) movie identity for a host-owned, in-memory SWF. Never fetched. */
+    hostMovieUrl?: string;
     /**
      * The data to load a movie from.
      */

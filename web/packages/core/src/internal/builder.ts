@@ -32,6 +32,9 @@ export function configureBuilder(
     if (isExplicit(config.allowScriptAccess)) {
         builder.setAllowScriptAccess(config.allowScriptAccess);
     }
+    if (isExplicit(config.hostStorage)) {
+        builder.setHostStorage(config.hostStorage);
+    }
     if (isExplicit(config.backgroundColor)) {
         builder.setBackgroundColor(parseColor(config.backgroundColor));
     }
