@@ -31,6 +31,7 @@ def build(output):
         "--mount", f"type=bind,src={common},dst={common},readonly",
         "--env", f"CARGO_HOME={cache}/cargo", "--env", f"NPM_CONFIG_CACHE={cache}/npm",
         "--env", "RETROM_BUILD=1", "--env", f"SOURCE_DATE_EPOCH={git('show', '-s', '--format=%ct', 'HEAD')}",
+        "--env", f"RUSTFLAGS=--remap-path-prefix={ROOT}=/ruffle",
         "--workdir", str(ROOT / "web"), image,
         "bash", "-ec", "npm ci --ignore-scripts && npm run build --workspace=ruffle-core && "
         "npm run build --workspace=ruffle-selfhosted")

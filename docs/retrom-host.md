@@ -45,3 +45,5 @@ Runtime consumers lock the repository, tag, commit and `ruffle-host-v1` ABI.
 The fork build sets `SOURCE_DATE_EPOCH` to the source commit timestamp so the
 embedded build date does not change between local and CI builds of that commit.
 Upstream builds without this environment variable keep their original behavior.
+Rust source paths (including the fork-owned Cargo cache) are remapped to `/ruffle`
+to avoid embedding the builder's checkout path in published Wasm panic locations.
