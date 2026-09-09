@@ -47,3 +47,8 @@ embedded build date does not change between local and CI builds of that commit.
 Upstream builds without this environment variable keep their original behavior.
 Rust source paths (including the fork-owned Cargo cache) are remapped to `/ruffle`
 to avoid embedding the builder's checkout path in published Wasm panic locations.
+
+In CI, checkout can synthesize a lightweight local tag reference. The workflow
+fetches the actual remote annotated tag into `refs/retrom-release/<tag>` and passes
+that exact reference to the packager; both checks still require an annotated tag
+pointing at HEAD. Local packaging defaults to the ordinary `refs/tags/<tag>`.

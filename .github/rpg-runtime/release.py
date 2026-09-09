@@ -38,11 +38,14 @@ def validate_candidate(candidate, commit):
     return descriptor
 
 
-def release(candidate, output, tag):
+def release(candidate, output, tag, tag_ref=None):
     if not re.fullmatch(r"retrom-core-ge46d1642fb67-r[1-9][0-9]*(-rc\.[1-9][0-9]*)?", tag):
         raise ValueError("RUFFLE_RELEASE_TAG_INVALID")
+    tag_ref = tag_ref or f"refs/tags/{tag}"
+    if tag_ref not in {f"refs/tags/{tag}", f"refs/retrom-release/{tag}"}:
+        raise ValueError("RUFFLE_RELEASE_TAG_REF_INVALID")
     commit = git("rev-parse", "HEAD")
-    if git("cat-file", "-t", f"refs/tags/{tag}") != "tag" or git("rev-list", "-n", "1", tag) != commit:
+    if git("cat-file", "-t", tag_ref) != "tag" or git("rev-list", "-n", "1", tag_ref) != commit:
         raise ValueError("RUFFLE_RELEASE_TAG_COMMIT_INVALID")
     git("merge-base", "--is-ancestor", commit, "origin/retrom/ge46d1642fb67")
     git("merge-base", "--is-ancestor", UPSTREAM, commit)
@@ -64,5 +67,6 @@ if __name__ == "__main__":
     parser.add_argument("--candidate", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--tag", required=True)
+    parser.add_argument("--tag-ref")
     args = parser.parse_args()
-    release(args.candidate, args.output, args.tag)
+    release(args.candidate, args.output, args.tag, args.tag_ref)

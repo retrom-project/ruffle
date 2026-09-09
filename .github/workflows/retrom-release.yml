@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.18.0
       - name: Verify immutable maintenance tag
@@ -36,7 +36,7 @@ jobs:
           mkdir "$RUNNER_TEMP/ruffle-candidate"
           bash .github/rpg-runtime/build-candidate.sh "$RUNNER_TEMP/ruffle-candidate"
           bash .github/rpg-runtime/check-web.sh
-          python3 -B .github/rpg-runtime/release.py --candidate "$RUNNER_TEMP/ruffle-candidate" --output "$RUNNER_TEMP/ruffle-release" --tag "$GITHUB_REF_NAME"
+          python3 -B .github/rpg-runtime/release.py --candidate "$RUNNER_TEMP/ruffle-candidate" --output "$RUNNER_TEMP/ruffle-release" --tag "$GITHUB_REF_NAME" --tag-ref "refs/retrom-release/$GITHUB_REF_NAME"
       - name: Publish immutable release
         env:
           GH_TOKEN: ${{ github.token }}

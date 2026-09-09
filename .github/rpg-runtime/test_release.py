@@ -81,6 +81,27 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(metadata["commit"], self.commit)
         self.assertEqual(metadata["files"], self.descriptor["files"])
 
+    def test_ci_checks_fetched_annotation_not_synthetic_checkout_tag(self):
+        tag = "retrom-core-ge46d1642fb67-r2"
+        tag_ref = f"refs/retrom-release/{tag}"
+
+        def git_result(*args):
+            if args == ("cat-file", "-t", tag_ref):
+                return "tag"
+            if args == ("rev-list", "-n", "1", tag_ref) or args == ("rev-parse", "HEAD"):
+                return self.commit
+            if args[:1] in [("merge-base",), ("status",)]:
+                return ""
+            self.fail(f"Unexpected Git lookup (synthetic local tag must not be used): {args}")
+
+        with patch.object(release, "git", side_effect=git_result):
+            release.release(self.candidate, Path(self.directory.name) / "release", tag, tag_ref)
+
+    def test_reject_unrelated_tag_reference(self):
+        with self.assertRaisesRegex(ValueError, "TAG_REF_INVALID"):
+            release.release(self.candidate, Path(self.directory.name) / "release",
+                            "retrom-core-ge46d1642fb67-r2", "refs/heads/master")
+
 
 if __name__ == "__main__":
     unittest.main()
